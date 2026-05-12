@@ -1,10 +1,9 @@
 name: GLaDOS Checkin
 
 on:
-  workflow_dispatch: # 允许手动点击运行
+  workflow_dispatch:
   schedule:
-    # 每天 UTC 时间 00:37 (北京时间早上 8:37)。
-    # 💡 强烈建议：把 37 改成你喜欢的任意两位数，避开整点，防止触发 GLaDOS 的防刷防火墙
+    # 每天北京时间早上 8:37 运行 (UTC 00:37)
     - cron: '37 0 * * *'
 
 jobs:
@@ -22,4 +21,5 @@ jobs:
       - name: Run Checkin Script
         env:
           GLADOS_COOKIE: ${{ secrets.GLADOS_COOKIE }}
+          BARK_KEY: ${{ secrets.BARK_KEY }} # 👉 必须加上这一行
         run: python checkin.py

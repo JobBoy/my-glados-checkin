@@ -21,29 +21,48 @@ def push_to_bark(title, content):
     except Exception as e:
         print(f"❌ Bark 推送失败: {e}")
 
-def translate_msg(msg):
-    """GLaDOS 专属中文翻译器（提取关键信息，转换为直观的中文）"""
+def translate_msg(msg, lang="zh-CN"):
+    """GLaDOS 专属翻译器，支持指定语言"""
+    # 如果指定了 en (英文) 或 none，则直接返回原始信息不作翻译
+    if lang.lower() in ["en", "none", "english"]:
+        return msg
+
     original = str(msg).lower()
     
     if "already" in original:
+        if lang == "zh-TW": return "您今天已經簽到過了 😅"
         return "您今天已经签到过了 😅"
     elif "get" in original and "point" in original:
-        # 智能提取返回文本里的积分数字
         points = re.findall(r'\d+', original)
         p_str = points[0] if points else "?"
+        if lang == "zh-TW": return f"簽到成功！獲得 {p_str} 積分 🎉"
         return f"签到成功！获得 {p_str} 积分 🎉"
     elif "token" in original or "login" in original or "cookie" in original:
+        if lang == "zh-TW": return "身份信息失效，請重新抓取 Cookie 更新！ ⚠️"
         return "身份信息失效，请重新抓取 Cookie 更新！ ⚠️"
     elif "tomorrow" in original:
+        if lang == "zh-TW": return "今天次數已用完，請明天再試 ⏳"
         return "今天次数已用完，请明天再试 ⏳"
     else:
-        # 如果 GLaDOS 出了什么新的没见过的提示，就返回原文
         return msg 
 
+def get_push_title(lang, is_error=False):
+    """根据语言动态返回推送标题"""
+    if lang.lower() in ["en", "none", "english"]:
+        return "GLaDOS Error" if is_error else "GLaDOS Checkin"
+    elif lang == "zh-TW":
+        return "GLaDOS 異常" if is_error else "GLaDOS 每日簽到"
+    else:
+        return "GLaDOS 异常" if is_error else "GLaDOS 每日签到"
+
 def main():
+    # 获取语言配置，如果没填则默认 'zh-CN'
+    notify_lang = os.environ.get("NOTIFY_LANG", "zh-CN")
+    
     cookie = os.environ.get("GLADOS_COOKIE")
     if not cookie:
-        push_to_bark("GLaDOS 异常", "未找到 Cookie，请检查 GitHub Secrets！")
+        err_title = get_push_title(notify_lang, is_error=True)
+        push_to_bark(err_title, "未找到 Cookie，请检查 GitHub Secrets！")
         exit(1)
 
     url = "https://glados.network/api/user/checkin"
@@ -66,20 +85,24 @@ def main():
                 original_msg = res_json['message']
                 print(f"👉 原始返回: {original_msg}")
                 
-                # 调用我们的中文翻译函数
-                cn_msg = translate_msg(original_msg)
-                print(f"🇨🇳 翻译结果: {cn_msg}")
+                # 传入指定的语言进行翻译
+                final_msg = translate_msg(original_msg, notify_lang)
+                print(f"💬 最终推送内容: {final_msg}")
                 
-                push_to_bark("GLaDOS 每日签到", cn_msg)
+                push_title = get_push_title(notify_lang)
+                push_to_bark(push_title, final_msg)
             else:
-                push_to_bark("GLaDOS 通知", "请求成功，但格式未知")
+                push_title = get_push_title(notify_lang)
+                push_to_bark(push_title, "请求成功，但格式未知 / Request success, unknown format")
                 
     except Exception as e:
         error_msg = str(e)
         if hasattr(e, 'read'):
             error_msg += " - " + e.read().decode('utf-8')
         print(f"❌ 签到失败: {error_msg}")
-        push_to_bark("GLaDOS 签到失败", f"接口报错：{error_msg}")
+        
+        err_title = get_push_title(notify_lang, is_error=True)
+        push_to_bark(err_title, f"接口报错 / API Error：{error_msg}")
         exit(1)
 
 if __name__ == "__main__":

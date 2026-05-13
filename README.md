@@ -2,7 +2,7 @@
 
 ![Python Version](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/YourUsername/YourRepoName/checkin.yml?label=Checkin%20Status) 
+![GitHub Actions Status](https://img.shields.io/github/actions/workflow/status/JobBoy/my-glados-checkin/checkin.yml?label=Checkin%20Status)
 *(💡 提示：记得把上方徽章链接里的 YourUsername 和 YourRepoName 换成你自己的)*
 
 这是一个极简、稳定、无第三方依赖的 GLaDOS 自动签到脚本。依托 GitHub Actions 每天自动运行，并通过 Bark 实时推送签到结果。告别繁琐操作，一次配置，终身安心。

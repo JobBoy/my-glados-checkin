@@ -21,5 +21,6 @@ jobs:
       - name: Run Checkin Script
         env:
           GLADOS_COOKIE: ${{ secrets.GLADOS_COOKIE }}
-          BARK_KEY: ${{ secrets.BARK_KEY }} # 👉 必须加上这一行
+          BARK_KEY: ${{ secrets.BARK_KEY }}
+          NOTIFY_LANG: ${{ secrets.NOTIFY_LANG }}
         run: python checkin.py

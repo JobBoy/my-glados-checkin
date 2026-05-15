@@ -22,8 +22,11 @@ def push_to_bark(title, content):
         print(f"❌ Bark 推送失败: {e}")
 
 def translate_msg(msg, lang="zh-CN"):
-    """GLaDOS 专属翻译器，支持指定语言"""
-    # 如果指定了 en (英文) 或 none，则直接返回原始信息不作翻译
+    """GLaDOS 专属中文翻译器（提取关键信息，转换为直观的中文）"""
+    # 容错处理：如果 GitHub 传进来的是空字符串，强制设为中文
+    if not lang or lang.strip() == "":
+        lang = "zh-CN"
+
     if lang.lower() in ["en", "none", "english"]:
         return msg
 
@@ -32,7 +35,8 @@ def translate_msg(msg, lang="zh-CN"):
     if "already" in original:
         if lang == "zh-TW": return "您今天已經簽到過了 😅"
         return "您今天已经签到过了 😅"
-    elif "get" in original and "point" in original:
+    # 修复匹配逻辑：同时兼容 get 和 got
+    elif ("get" in original or "got" in original) and "point" in original:
         points = re.findall(r'\d+', original)
         p_str = points[0] if points else "?"
         if lang == "zh-TW": return f"簽到成功！獲得 {p_str} 積分 🎉"
@@ -48,6 +52,9 @@ def translate_msg(msg, lang="zh-CN"):
 
 def get_push_title(lang, is_error=False):
     """根据语言动态返回推送标题"""
+    if not lang or lang.strip() == "":
+        lang = "zh-CN"
+        
     if lang.lower() in ["en", "none", "english"]:
         return "GLaDOS Error" if is_error else "GLaDOS Checkin"
     elif lang == "zh-TW":
@@ -56,8 +63,7 @@ def get_push_title(lang, is_error=False):
         return "GLaDOS 异常" if is_error else "GLaDOS 每日签到"
 
 def main():
-    # 获取语言配置，如果没填则默认 'zh-CN'
-    notify_lang = os.environ.get("NOTIFY_LANG", "zh-CN")
+    notify_lang = os.environ.get("NOTIFY_LANG")
     
     cookie = os.environ.get("GLADOS_COOKIE")
     if not cookie:
@@ -85,12 +91,11 @@ def main():
                 original_msg = res_json['message']
                 print(f"👉 原始返回: {original_msg}")
                 
-                # 传入指定的语言进行翻译
-                final_msg = translate_msg(original_msg, notify_lang)
-                print(f"💬 最终推送内容: {final_msg}")
+                cn_msg = translate_msg(original_msg, notify_lang)
+                print(f"💬 最终推送内容: {cn_msg}")
                 
                 push_title = get_push_title(notify_lang)
-                push_to_bark(push_title, final_msg)
+                push_to_bark(push_title, cn_msg)
             else:
                 push_title = get_push_title(notify_lang)
                 push_to_bark(push_title, "请求成功，但格式未知 / Request success, unknown format")

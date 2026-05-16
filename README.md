@@ -63,3 +63,32 @@
 我的主号====__stripe_mid=140...; koa:sess=eyJ1...; koa:sess.sig=3Cgo...
 老婆的号====__stripe_mid=xyz...; koa:sess=abc...; koa:sess.sig=123...
 测试小号====koa:sess=789...; koa:sess.sig=456...
+```
+*(向下兼容说明：如果你只输入一串毫无格式的 Cookie，脚本会自动将其识别为单账号模式。)*
+
+### 2. 修改自动签到时间
+直接编辑 `.github/workflows/checkin.yml` 文件。
+找到 `cron: '37 0 * * *'` 这一行修改即可。（格式为 UTC 时间，即北京时间减去 8 小时。建议避开 00:00 整点高峰以防拥堵）。
+
+---
+
+## 🔄 维护指南：如何更新 Cookie？
+
+GLaDOS 的 Cookie 通常有效期为数月。如果你某天收到了 **“⚠️ 身份信息失效，请重新抓取 Cookie 更新！”** 的推送：
+
+1. 重新在电脑上按 `F12` 抓取一段全新的 Cookie。
+2. 回到本仓库的 **Settings** -> **Secrets and variables** -> **Actions**。
+3. 找到原有的 `GLADOS_COOKIE`，点击它右边的 ✏️ **铅笔图标**。
+4. 将失效账号的旧 Cookie 替换为新的，点击 **Update secret** 保存。
+5. 去 **Actions** 里手动点一次 `Run workflow` 跑通即可。
+
+---
+
+## ⚠️ 免责声明 (Disclaimer)
+
+* 本项目仅供编程学习与交流使用，旨在展示 Python 自动化请求及 GitHub Actions 的基础应用。
+* 请勿滥用本脚本向目标服务器发送高频或恶意请求。
+* 使用本脚本产生的一切后果由使用者自行承担，与项目作者无关。
+
+## 📄 开源协议
+本项目基于 [MIT License](LICENSE) 开源。欢迎大家提出 Issue，或提交 Pull Request 共同完善！

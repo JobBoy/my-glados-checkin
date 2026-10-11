@@ -24,3 +24,9 @@ jobs:
           BARK_KEY: ${{ secrets.BARK_KEY }}
           NOTIFY_LANG: ${{ secrets.NOTIFY_LANG }}
         run: python checkin.py
+        
+      - name: Keep GitHub Actions Alive
+        uses: gautamkrishnar/keepalive-workflow@v1
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: "chore: keep actions alive [skip ci]"
